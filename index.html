@@ -169,6 +169,21 @@
             50% { transform: scale(1.05); }
         }
         
+        .share-button {
+            background: linear-gradient(45deg, #1DA1F2, #0d8bd9);
+            color: #FFFFFF;
+            font-size: 1.1em;
+            padding: 15px 24px;
+            margin: 15px 0 10px 0;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .share-button:hover {
+            background: linear-gradient(45deg, #0d8bd9, #1DA1F2);
+            transform: translateY(-1px);
+        }
+        
         .reset-button {
             background: linear-gradient(45deg, #DC143C, #8B0000);
             color: #FFFFFF;
@@ -247,14 +262,26 @@
             <div id="fortune-text"></div>
         </div>
         
+        <div id="share-section" style="display: none;">
+            <button class="button share-button" onclick="shareToX()" id="share-btn">
+                <span style="font-size: 1.1em;">🐦</span> 結果をXでシェア
+            </button>
+        </div>
+        
         <button class="button reset-button" onclick="resetForm()" style="display: none;" id="reset-btn">もう一度占う</button>
     </div>
 
     <script>
+        let currentFortuneName = '';
+        let currentScores = {};
+        
         function calculateFortune() {
             const q3 = parseInt(document.getElementById('question3').value);
             const q4 = parseInt(document.getElementById('question4').value);
             const q5 = parseInt(document.getElementById('question5').value);
+            
+            // スコアを保存
+            currentScores = {q3, q4, q5};
             
             if (isNaN(q3) || isNaN(q4) || isNaN(q5)) {
                 alert('すべての正答数を入力してください');
@@ -277,21 +304,27 @@
             if ((hash > 80 && total > 35) || (q3 === q4 + 10 && q4 === q5 - 10 && total > 25)) {
                 fortune = "🌟 大吉 🌟<br>素晴らしい運勢です！幸運に満ちています";
                 fortuneClass = "fortune-daikichi";
+                currentFortuneName = "大吉";
             } else if ((hash > 60 && total > 25) || (random === 1 && total > 20)) {
                 fortune = "✨ 中吉 ✨<br>良い運勢です。幸せが訪れるでしょう";
                 fortuneClass = "fortune-chuukichi";
+                currentFortuneName = "中吉";
             } else if ((hash > 40 && total > 18) || (q3 + q4 > q5 * 0.8)) {
                 fortune = "🍀 小吉 🍀<br>穏やかな運勢です。安定した日々が続きます";
                 fortuneClass = "fortune-shoukichi";
+                currentFortuneName = "小吉";
             } else if ((hash > 25 && total > 15) || (random === 3)) {
                 fortune = "🌸 末吉 🌸<br>まずまずの運勢。平穏な時期です";
                 fortuneClass = "fortune-suekichi";
+                currentFortuneName = "末吉";
             } else if ((hash > 15 && total > 10) || (random === 4 || random === 5)) {
                 fortune = "🌧️ 凶 🌧️<br>注意が必要な時期。慎重にお過ごしください";
                 fortuneClass = "fortune-kyou";
+                currentFortuneName = "凶";
             } else {
                 fortune = "⚡ 大凶 ⚡<br>試練の時です。時が過ぎるのを待ちましょう";
                 fortuneClass = "fortune-daikyou";
+                currentFortuneName = "大凶";
             }
             
             showResult(fortune, fortuneClass);
@@ -301,11 +334,40 @@
             const resultDiv = document.getElementById('result');
             const fortuneText = document.getElementById('fortune-text');
             const resetBtn = document.getElementById('reset-btn');
+            const shareSection = document.getElementById('share-section');
             
             fortuneText.innerHTML = fortune;
             resultDiv.className = `result ${fortuneClass} show`;
             resultDiv.style.display = 'flex';
+            shareSection.style.display = 'block';
             resetBtn.style.display = 'block';
+        }
+        
+        function shareToX() {
+            const scores = currentScores;
+            const fortuneName = currentFortuneName;
+            const siteUrl = window.location.href;
+            
+            // シェアテキスト作成
+            const shareText = `⛩️ 令和7年度会計士論文式試験 財務会計論運勢占い
+
+📝 正答数
+第3問: ${scores.q3}問/18問
+第4問: ${scores.q4}問/8問  
+第5問: ${scores.q5}問/18問
+
+🔮 結果: 【${fortuneName}】
+
+あなたも占ってみませんか？
+${siteUrl}
+
+#会計士試験 #財務会計論 #運勢占い`;
+
+            // X（Twitter）のシェアURL作成
+            const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+            
+            // 新しいウィンドウでX（Twitter）を開く
+            window.open(xUrl, '_blank', 'width=550,height=420');
         }
         
         function resetForm() {
@@ -313,7 +375,10 @@
             document.getElementById('question4').value = '';
             document.getElementById('question5').value = '';
             document.getElementById('result').style.display = 'none';
+            document.getElementById('share-section').style.display = 'none';
             document.getElementById('reset-btn').style.display = 'none';
+            currentFortuneName = '';
+            currentScores = {};
         }
         
         // エンターキーでの送信
