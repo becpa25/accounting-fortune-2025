@@ -75,6 +75,17 @@
             box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
         }
         
+        /* スピンボタン（上下矢印）を非表示 */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        
         .button {
             width: 100%;
             padding: 18px;
@@ -272,6 +283,27 @@
     </div>
 
     <script>
+        // 入力値制限機能
+        function limitInput(inputId, maxValue) {
+            const input = document.getElementById(inputId);
+            input.addEventListener('input', function() {
+                let value = parseInt(this.value);
+                if (value > maxValue) {
+                    this.value = maxValue;
+                }
+                if (value < 0) {
+                    this.value = 0;
+                }
+            });
+        }
+        
+        // 各入力フィールドに制限を設定
+        document.addEventListener('DOMContentLoaded', function() {
+            limitInput('question3', 18);
+            limitInput('question4', 8);
+            limitInput('question5', 18);
+        });
+        
         let currentFortuneName = '';
         let currentScores = {};
         
